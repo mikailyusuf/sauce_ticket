@@ -21,9 +21,7 @@ class _TicketDetailScreenState extends State<TicketDetailScreen> {
       appBar: AppBar(
         title: Text(widget._ticketsModel.start_destination +" -> "+ widget._ticketsModel.stop_destination),
       ),
-      body: Card(
-        elevation: 8.0,
-        child: Container(
+      body: Container(
           child: Column(
             children: [
               SizedBox(height: 24.0,),
@@ -35,7 +33,7 @@ class _TicketDetailScreenState extends State<TicketDetailScreen> {
             ],
           )
         ),
-      ),
+
     );
   }
 }

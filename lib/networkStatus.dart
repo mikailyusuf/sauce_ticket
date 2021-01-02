@@ -1,6 +1,6 @@
 import 'package:connectivity/connectivity.dart';
 
-isConnected() async {
+Future<bool> isConnected() async {
   var connectivityResult = await (Connectivity().checkConnectivity());
   if (connectivityResult == ConnectivityResult.mobile) {
     return true;

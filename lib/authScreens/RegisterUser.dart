@@ -5,7 +5,6 @@ import 'package:sauce_ticket/models/RegisterResponse.dart';
 import 'package:sauce_ticket/networkStatus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import 'TicketScreens.dart';
 
 class RegisterUser extends StatefulWidget {
   @override
@@ -21,13 +20,9 @@ class _RegisterUserState extends State<RegisterUser> {
   final _passwordController = TextEditingController();
   Future<RegisterResponse> _registerResponse;
 
-  // Future<void>  saveUserData(bool registerd, String email)
-  // async {
-  //   final prefs = await SharedPreferences.getInstance();
-  //   prefs.setBool("registered", registerd);
-  //   prefs.setString("email", email);
-  //
-  // }
+  bool isInternet = false;
+
+
 
 
   saveUserData(bool registerd, String email) async {
@@ -55,15 +50,17 @@ class _RegisterUserState extends State<RegisterUser> {
                 builder: (context, snapshot) {
 
                   if (snapshot.hasData) {
-                    saveUserData(true,snapshot.data.email);
                     WidgetsBinding.instance.addPostFrameCallback((_) {
-                      Scaffold.of(context).showSnackBar(SnackBar(
-                        content: Text("Successfully Registered"),
-                        duration: Duration(seconds: 10),
 
-                      ));
+                      Navigator.pushNamedAndRemoveUntil(context,'/home',(_)=>false);
+
+                      // Scaffold.of(context).showSnackBar(SnackBar(
+                      //   content: Text("Successfully Registered"),
+                      //   duration: Duration(seconds: 10),
+                      //
+                      // ));
+
                     });
-                    Navigator.of(context).pushNamed('/home',);
                   } else if (snapshot.hasError) {
                     WidgetsBinding.instance.addPostFrameCallback((_) {
                       Scaffold.of(context).showSnackBar(SnackBar(
@@ -174,11 +171,19 @@ class _RegisterUserState extends State<RegisterUser> {
                   "SIGN UP",
                   style: TextStyle(color: Colors.white),
                 ),
-                onPressed: () {
+                onPressed: ()  async {
                   if (_formKey.currentState.validate()) {
-                    setState(() {
-                      register();
-                    });
+                    isInternet = await isConnected();
+                    if(isInternet)
+                      {
+                        setState(() {
+                          register();
+                        });
+                      }
+                    else{
+                      print("Sory yo must be Connected to the Internet");
+                    }
+
                   }
                 })
           ],
@@ -201,18 +206,13 @@ class _RegisterUserState extends State<RegisterUser> {
 
         last_name: last_name);
 
-    if(isConnected())
-      {
-        setState(() {
-          _registerResponse = registerUser(
-              "https://mikail-sauce.herokuapp.com/register_user/",
-              body: registerModel.toJson());
-        });
-      }
 
-    else{
-      print("Sorry you are not Connected to the Internet");
-    }
+          _registerResponse = registerUser(
+                  "https://mikail-sauce.herokuapp.com/register_user/",
+                  body: registerModel.toJson());
+    saveUserData(true,registerModel.email);
+
+
 
   }
 

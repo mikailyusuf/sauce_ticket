@@ -28,6 +28,7 @@ class _TicketScreenState extends State<TicketScreen> {
     return Scaffold(
       appBar: AppBar(
         title: Text('Tickets'),
+        automaticallyImplyLeading: false,
       ),
       body: _isLoading
           ? Center(

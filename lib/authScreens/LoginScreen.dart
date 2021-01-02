@@ -16,6 +16,8 @@ class _LoginScreenState extends State<LoginScreen> {
   final _passwordController = TextEditingController();
   Future<LoginResponse> _loginResponse;
 
+  bool isInternet = false;
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -30,9 +32,11 @@ class _LoginScreenState extends State<LoginScreen> {
                 future: _loginResponse,
                 builder: (context, snapshot) {
                   if (snapshot.hasData) {
-                    Navigator.of(context).pushNamed('/home',);
+                    WidgetsBinding.instance.addPostFrameCallback((_) {
+                      Navigator.pushNamedAndRemoveUntil(
+                          context, '/home', (_) => false);
+                    });
                   } else if (snapshot.hasError) {
-
                     WidgetsBinding.instance.addPostFrameCallback((_) {
                       Scaffold.of(context).showSnackBar(SnackBar(
                         content: Text("Sorry an error Occured"),
@@ -53,80 +57,77 @@ class _LoginScreenState extends State<LoginScreen> {
 
   ListView buildListView(BuildContext context) {
     return ListView(
-              padding: const EdgeInsets.symmetric(horizontal: 18.0),
-              children: [
-                SizedBox(
-                  height: 80.0,
-                ),
-                TextFormField(
-                  controller: _usernameController,
-                  decoration: InputDecoration(
-                      labelText: 'Username',
-                      border: OutlineInputBorder(),
-                      hintText: 'Enter a your Username'),
-                  validator: (value) {
-                    if (value.isEmpty) {
-                      return 'Please enter some text';
+      padding: const EdgeInsets.symmetric(horizontal: 18.0),
+      children: [
+        SizedBox(
+          height: 80.0,
+        ),
+        TextFormField(
+          controller: _usernameController,
+          decoration: InputDecoration(
+              labelText: 'Username',
+              border: OutlineInputBorder(),
+              hintText: 'Enter a your Username'),
+          validator: (value) {
+            if (value.isEmpty) {
+              return 'Please enter some text';
+            }
+            return null;
+          },
+        ),
+        SizedBox(height: 18.0),
+        TextFormField(
+          controller: _passwordController,
+          decoration: InputDecoration(
+              labelText: 'Password',
+              border: OutlineInputBorder(),
+              hintText: 'Enter a your Password'),
+          validator: (value) {
+            if (value.isEmpty) {
+              return 'Please enter  your password';
+            }
+            return null;
+          },
+        ),
+        SizedBox(
+          height: 18.0,
+        ),
+        ButtonBar(
+          children: [
+            RaisedButton(
+              onPressed: () {
+                Navigator.of(context).pushNamed(
+                  '/signup',
+                );
+              },
+              child: Text('Sign Up'),
+            ),
+            FlatButton(
+                onPressed: () async {
+                  if (_formKey.currentState.validate()) {
+                    isInternet = await isConnected();
+                    if (isInternet) {
+                      setState(() {
+                        login();
+                      });
+                    } else {
+                      print("Sory yo must be Connected to the Internet");
                     }
-                    return null;
-                  },
-                ),
-                SizedBox(height: 18.0),
-                TextFormField(
-                  controller: _passwordController,
-                  decoration: InputDecoration(
-                      labelText: 'Password',
-                      border: OutlineInputBorder(),
-                      hintText: 'Enter a your Password'),
-                  validator: (value) {
-                    if (value.isEmpty) {
-                      return 'Please enter  your password';
-                    }
-                    return null;
-                  },
-                ),
-                SizedBox(
-                  height: 18.0,
-                ),
-                ButtonBar(
-                  children: [
-                    RaisedButton(
-                      onPressed: () {
-                        Navigator.of(context).pushNamed(
-                          '/signup',
-                        );
-                      },
-                      child: Text('Sign Up'),
-                    ),
-                    FlatButton(
-                        onPressed: () {
-                          if (_formKey.currentState.validate()) {
-                              login();
-
-                          }
-                        },
-                        child: Text('Login')),
-                  ],
-                )
-              ],
-            );
+                  }
+                },
+                child: Text('Login')),
+          ],
+        )
+      ],
+    );
   }
 
   void login() {
     String username = _usernameController.text.toString();
     String password = _passwordController.text.toString();
     LoginModel login = LoginModel(username: username, password: password);
-    if(isConnected())
-      {
-        setState(() {
-          _loginResponse = loginUser("https://mikail-sauce.herokuapp.com/login/",
-            body: login.toMap());
-        });
 
-      }
-    else{
-      print("Sorry You are not Connected to the Internet");
-    }
-
+    _loginResponse = loginUser("https://mikail-sauce.herokuapp.com/login/",
+        body: login.toMap());
   }
 }
