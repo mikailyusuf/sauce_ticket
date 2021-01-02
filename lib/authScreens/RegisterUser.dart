@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:sauce_ticket/httpmethods/httpMethods.dart';
 import 'package:sauce_ticket/models/RegisterModel.dart';
 import 'package:sauce_ticket/models/RegisterResponse.dart';
+import 'package:sauce_ticket/networkStatus.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import 'TicketScreens.dart';
 
@@ -19,8 +21,27 @@ class _RegisterUserState extends State<RegisterUser> {
   final _passwordController = TextEditingController();
   Future<RegisterResponse> _registerResponse;
 
+  // Future<void>  saveUserData(bool registerd, String email)
+  // async {
+  //   final prefs = await SharedPreferences.getInstance();
+  //   prefs.setBool("registered", registerd);
+  //   prefs.setString("email", email);
+  //
+  // }
+
+
+  saveUserData(bool registerd, String email) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    setState(() {
+      prefs.setBool("registered", registerd);
+      prefs.setString("email", email);
+    });
+  }
+
+
   @override
   Widget build(BuildContext context) {
+
     return Scaffold(
       appBar: AppBar(
         title: Text("Sign Up"),
@@ -32,11 +53,14 @@ class _RegisterUserState extends State<RegisterUser> {
             : FutureBuilder<RegisterResponse>(
                 future: _registerResponse,
                 builder: (context, snapshot) {
+
                   if (snapshot.hasData) {
+                    saveUserData(true,snapshot.data.email);
                     WidgetsBinding.instance.addPostFrameCallback((_) {
                       Scaffold.of(context).showSnackBar(SnackBar(
                         content: Text("Successfully Registered"),
                         duration: Duration(seconds: 10),
+
                       ));
                     });
                     Navigator.of(context).pushNamed('/home',);
@@ -174,20 +198,22 @@ class _RegisterUserState extends State<RegisterUser> {
         password: password,
         email: email,
         first_name: first_name,
+
         last_name: last_name);
-    _registerResponse = registerUser(
-        "https://mikail-sauce.herokuapp.com/register_user/",
-        body: registerModel.toJson());
+
+    if(isConnected())
+      {
+        setState(() {
+          _registerResponse = registerUser(
+              "https://mikail-sauce.herokuapp.com/register_user/",
+              body: registerModel.toJson());
+        });
+      }
+
+    else{
+      print("Sorry you are not Connected to the Internet");
+    }
+
   }
 
-  void _showToast(BuildContext context, String message) {
-    final scaffold = Scaffold.of(context);
-    scaffold.showSnackBar(
-      SnackBar(
-        content: Text(message),
-        action: SnackBarAction(
-            label: 'UNDO', onPressed: scaffold.hideCurrentSnackBar),
-      ),
-    );
-  }
 }

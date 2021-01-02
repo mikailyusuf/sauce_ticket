@@ -1,10 +1,8 @@
-
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:sauce_ticket/models/TicketsModel.dart';
 import 'package:http/http.dart' as http;
-
 
 class TicketScreen extends StatefulWidget {
   @override
@@ -12,10 +10,10 @@ class TicketScreen extends StatefulWidget {
 }
 
 class _TicketScreenState extends State<TicketScreen> {
-
   List<TicketsModel> _tickets = [];
 
-  final GlobalKey<RefreshIndicatorState> _refreshIndicatorKey = new GlobalKey<RefreshIndicatorState>();
+  final GlobalKey<RefreshIndicatorState> _refreshIndicatorKey =
+      new GlobalKey<RefreshIndicatorState>();
 
   bool _isLoading = false;
 
@@ -33,8 +31,8 @@ class _TicketScreenState extends State<TicketScreen> {
       ),
       body: _isLoading
           ? Center(
-        child: CircularProgressIndicator(),
-      )
+              child: CircularProgressIndicator(),
+            )
           : _buildTicketList(),
     );
   }
@@ -48,38 +46,45 @@ class _TicketScreenState extends State<TicketScreen> {
       onRefresh: _onRefresh,
       key: _refreshIndicatorKey,
       child: ListView.builder(
-          // _tickets[index].title
+        // _tickets[index].title
         itemBuilder: (BuildContext context, int index) {
-          return GestureDetector(
-            onTap: (){
-              Navigator.of(context).pushNamed('/detail',arguments: _tickets[index]);
-            },
-            child: Column(
-              children: <Widget>[
-                Padding(
-                  child:Text(_tickets[index].start_destination),
-                  padding: EdgeInsets.all(10.0),
-                ),
-                Padding(
-                  child:Text(_tickets[index].stop_destination),
-                  padding: EdgeInsets.all(10.0),
-                ),
-                Padding(
-                  child:Text(_tickets[index].expired.toString()),
-                  padding: EdgeInsets.all(10.0),
-                ),
-                Padding(
-                  child:Text(_tickets[index].date_created),
-                  padding: EdgeInsets.all(10.0),
-                ),
-                Padding(
-                  child:Text(_tickets[index].price),
-                  padding: EdgeInsets.all(10.0),
-                ),
-                Divider(
-                  height: 5.0,
-                )
-              ],
+          return Card(
+            child: new InkWell(
+              onTap: () {
+                Future.delayed(Duration.zero, () {
+                  print("CARD CLICKED");
+                  print(_tickets[index].toString());
+                  Navigator.of(context)
+                      .pushNamed('/detail', arguments: _tickets[index]);
+                });
+              },
+              child: Column(
+                children: <Widget>[
+                  Padding(
+                    child: Text(_tickets[index].start_destination),
+                    padding: EdgeInsets.all(10.0),
+                  ),
+                  Padding(
+                    child: Text(_tickets[index].stop_destination),
+                    padding: EdgeInsets.all(10.0),
+                  ),
+                  Padding(
+                    child: Text(_tickets[index].expired.toString()),
+                    padding: EdgeInsets.all(10.0),
+                  ),
+                  Padding(
+                    child: Text(_tickets[index].date_created),
+                    padding: EdgeInsets.all(10.0),
+                  ),
+                  Padding(
+                    child: Text(_tickets[index].price),
+                    padding: EdgeInsets.all(10.0),
+                  ),
+                  Divider(
+                    height: 5.0,
+                  )
+                ],
+              ),
             ),
           );
         },
@@ -91,7 +96,8 @@ class _TicketScreenState extends State<TicketScreen> {
   Future<dynamic> fetchTickets() {
     _isLoading = true;
 
-    return http.get('https://mikail-sauce.herokuapp.com/list_tickets/')
+    return http
+        .get('https://mikail-sauce.herokuapp.com/list_tickets/')
         .then((http.Response response) {
       final List<TicketsModel> fetchedPosts = [];
 
@@ -124,6 +130,5 @@ class _TicketScreenState extends State<TicketScreen> {
         _isLoading = false;
       });
     });
-
   }
 }

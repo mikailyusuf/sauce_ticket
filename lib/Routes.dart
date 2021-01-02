@@ -27,7 +27,8 @@ class RouteGenerator {
         TicketsModel data = args;
 
         return MaterialPageRoute(builder: (_)=>TicketDetailScreen(data));
-        return _errorRoute();
+
+        // return _errorRoute();
       default:
       // If there is no such named route in the switch statement, e.g. /third
         return _errorRoute();
