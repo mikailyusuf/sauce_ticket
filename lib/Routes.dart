@@ -1,6 +1,7 @@
 
 
 import 'package:flutter/material.dart';
+import 'package:sauce_ticket/SplashScreen.dart';
 import 'package:sauce_ticket/TicketDetailScreen.dart';
 import 'package:sauce_ticket/authScreens/LoginScreen.dart';
 import 'package:sauce_ticket/authScreens/RegisterUser.dart';
@@ -14,14 +15,16 @@ class RouteGenerator {
     final args = settings.arguments;
 
     switch (settings.name) {
-      case '/':
+      case '/splash':
+        return MaterialPageRoute(builder: (_) => WelcomeScreen());
+        case '/login':
         return MaterialPageRoute(builder: (_) => LoginScreen());
       case '/signup':
           return MaterialPageRoute(
             builder: (_) => RegisterUser(),
           );
       case '/home':
-        return MaterialPageRoute(builder: (_)=>TicketScreen());
+        return MaterialPageRoute(builder: (_)=>Home());
       case '/detail':
 
         TicketsModel data = args;

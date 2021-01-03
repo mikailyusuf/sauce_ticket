@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:sauce_ticket/Routes.dart';
+import 'package:sauce_ticket/SplashScreen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 
@@ -84,8 +85,9 @@ class _MyAppState extends State<MyApp> {
         // closer together (more dense) than on mobile platforms.
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
-      // home: RegisterUser(),
-      initialRoute: _status ?'/':"/home",
+      // home:
+      // WelcomeScreen(),
+      initialRoute: '/splash',
       onGenerateRoute: RouteGenerator.generateRoute,
       debugShowCheckedModeBanner: false,
     );

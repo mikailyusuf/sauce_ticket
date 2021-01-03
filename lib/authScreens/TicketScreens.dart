@@ -4,6 +4,59 @@ import 'package:flutter/material.dart';
 import 'package:sauce_ticket/models/TicketsModel.dart';
 import 'package:http/http.dart' as http;
 
+import '../navScreens.dart';
+
+
+
+class Home extends StatefulWidget {
+  @override
+  _HomeState createState() => _HomeState();
+}
+
+class _HomeState extends State<Home> {
+  int _screenNumber = 0;
+
+  List<NavObject> navItems = [
+    NavObject(
+      screen: TicketScreen(),
+      navIcon: Icon(Icons.home),
+      title: Text('Tickets'),
+    ),
+    NavObject(
+      screen: SavedTickets(),
+      navIcon: Icon(Icons.settings),
+      title: Text('Saved Tickets'),
+    ),
+    NavObject(
+      screen: Profile(),
+      navIcon: Icon(Icons.share),
+      title: Text('Profile'),
+    ),
+  ];
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: navItems[_screenNumber].screen,
+      bottomNavigationBar: BottomNavigationBar(
+        type: BottomNavigationBarType.fixed,
+        items: navItems
+            .map((navItem) => BottomNavigationBarItem(
+          icon: navItem.navIcon,
+          title: navItem.title,
+
+        ))
+            .toList(),
+        currentIndex: _screenNumber,
+        onTap: (i) => setState(() {
+          _screenNumber = i;
+        }),
+      ),
+    );
+  }
+}
+
+
+
 class TicketScreen extends StatefulWidget {
   @override
   _TicketScreenState createState() => _TicketScreenState();
@@ -11,11 +64,11 @@ class TicketScreen extends StatefulWidget {
 
 class _TicketScreenState extends State<TicketScreen> {
   List<TicketsModel> _tickets = [];
-
   final GlobalKey<RefreshIndicatorState> _refreshIndicatorKey =
       new GlobalKey<RefreshIndicatorState>();
 
   bool _isLoading = false;
+
 
   @override
   initState() {
@@ -132,4 +185,12 @@ class _TicketScreenState extends State<TicketScreen> {
       });
     });
   }
+}
+
+
+class NavObject {
+  Widget screen;
+  Icon navIcon;
+  Text title;
+  NavObject({this.screen, this.navIcon, this.title});
 }
