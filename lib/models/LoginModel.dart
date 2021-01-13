@@ -1,23 +1,21 @@
 
-class LoginModel{
-  final String username;
-  final String password;
+class LoginModel {
+    String email;
+    String password;
 
-  LoginModel({this.username,this.password});
+    LoginModel({this.email, this.password});
 
-  factory LoginModel.fromJson(Map<String, dynamic> json) {
-    return LoginModel(
-      username: json['user_id'],
-      password: json['password'],
+    factory LoginModel.fromJson(Map<String, dynamic> json) {
+        return LoginModel(
+            email: json['email'], 
+            password: json['password'], 
+        );
+    }
 
-    );
-  }
-
-  Map toMap() {
-    var map = new Map();
-    map["user_id"] = username;
-    map["password"] = password;
-    return map;
-  }
-
+    Map<String, dynamic> toJson() {
+        final Map<String, dynamic> data = new Map<String, dynamic>();
+        data['email'] = this.email;
+        data['password'] = this.password;
+        return data;
+    }
 }

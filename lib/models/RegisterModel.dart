@@ -4,9 +4,10 @@ class RegisterModel {
     String first_name;
     String last_name;
     String password;
+    String phone_number;
     String username;
 
-    RegisterModel({this.email, this.first_name, this.last_name, this.password, this.username});
+    RegisterModel({this.email, this.first_name, this.last_name, this.password, this.phone_number, this.username});
 
     factory RegisterModel.fromJson(Map<String, dynamic> json) {
         return RegisterModel(
@@ -14,6 +15,7 @@ class RegisterModel {
             first_name: json['first_name'], 
             last_name: json['last_name'], 
             password: json['password'], 
+            phone_number: json['phone_number'], 
             username: json['username'], 
         );
     }
@@ -24,6 +26,7 @@ class RegisterModel {
         data['first_name'] = this.first_name;
         data['last_name'] = this.last_name;
         data['password'] = this.password;
+        data['phone_number'] = this.phone_number;
         data['username'] = this.username;
         return data;
     }

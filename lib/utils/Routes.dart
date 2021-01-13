@@ -1,13 +1,14 @@
 
 
 import 'package:flutter/material.dart';
-import 'package:sauce_ticket/SplashScreen.dart';
-import 'package:sauce_ticket/TicketDetailScreen.dart';
+import 'package:sauce_ticket/screens/SplashScreen.dart';
+import 'package:sauce_ticket/screens/TicketDetailScreen.dart';
 import 'package:sauce_ticket/authScreens/LoginScreen.dart';
 import 'package:sauce_ticket/authScreens/RegisterUser.dart';
-import 'package:sauce_ticket/authScreens/TicketScreens.dart';
+import 'package:sauce_ticket/screens/TicketScreens.dart';
 
-import 'models/TicketsModel.dart';
+import '../models/HomeScreen.dart';
+import '../models/TicketsModel.dart';
 
 class RouteGenerator {
   static Route<dynamic> generateRoute(RouteSettings settings) {

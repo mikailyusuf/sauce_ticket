@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:sauce_ticket/Routes.dart';
-import 'package:sauce_ticket/SplashScreen.dart';
+import 'package:sauce_ticket/utils/Routes.dart';
+import 'package:sauce_ticket/screens/SplashScreen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 

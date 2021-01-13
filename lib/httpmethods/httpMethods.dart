@@ -6,14 +6,25 @@ import 'package:sauce_ticket/models/RegisterResponse.dart';
 
 
 Future<LoginResponse> loginUser(String url, {Map body}) async {
-  final http.Response response = await http.post(url, body:body).timeout(const Duration(seconds: 60));
 
+  try
+  {
+    final http.Response response = await http.post(url, body:body).timeout(const Duration(seconds: 60));
 
-  if (response.statusCode == 200) {
-    return LoginResponse.fromJson(jsonDecode(response.body));
-  } else {
-    throw Exception("An Error Occured");
+    if (response.statusCode == 200) {
+      return LoginResponse.fromJson(jsonDecode(response.body));
+    } else {
+      throw Exception("An Error Occured");
+    }
   }
+
+  catch (e)
+  {
+
+  }
+
+
+
 }
 
 

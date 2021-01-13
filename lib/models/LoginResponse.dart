@@ -1,24 +1,28 @@
 
-class LoginResponse {
-    String password;
-    String token;
-    String user_id;
+import 'Tokens.dart';
 
-    LoginResponse({this.password, this.token, this.user_id});
+class LoginResponse {
+    String email;
+    Tokens tokens;
+    String username;
+
+    LoginResponse({this.email, this.tokens, this.username});
 
     factory LoginResponse.fromJson(Map<String, dynamic> json) {
         return LoginResponse(
-            password: json['password'], 
-            token: json['token'], 
-            user_id: json['user_id'], 
+            email: json['email'], 
+            tokens: json['tokens'] != null ? Tokens.fromJson(json['tokens']) : null, 
+            username: json['username'], 
         );
     }
 
     Map<String, dynamic> toJson() {
         final Map<String, dynamic> data = new Map<String, dynamic>();
-        data['password'] = this.password;
-        data['token'] = this.token;
-        data['user_id'] = this.user_id;
+        data['email'] = this.email;
+        data['username'] = this.username;
+        if (this.tokens != null) {
+            data['tokens'] = this.tokens.toJson();
+        }
         return data;
     }
 }

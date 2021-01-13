@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
+import 'package:sauce_ticket/db/localDb.dart';
 import 'package:sauce_ticket/httpmethods/httpMethods.dart';
 import 'package:sauce_ticket/models/LoginModel.dart';
 import 'package:sauce_ticket/models/LoginResponse.dart';
-import 'package:sauce_ticket/networkStatus.dart';
+import 'package:sauce_ticket/models/Tokens.dart';
+import 'package:sauce_ticket/utils/networkStatus.dart';
 
 class LoginScreen extends StatefulWidget {
   @override
@@ -12,7 +14,7 @@ class LoginScreen extends StatefulWidget {
 
 class _LoginScreenState extends State<LoginScreen> {
   final _formKey = GlobalKey<FormState>();
-  final _usernameController = TextEditingController();
+  final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   Future<LoginResponse> _loginResponse;
 
@@ -23,6 +25,8 @@ class _LoginScreenState extends State<LoginScreen> {
     return Scaffold(
       appBar: AppBar(
         title: Text("Login"),
+        automaticallyImplyLeading: false,
+
       ),
       body: Form(
         key: _formKey,
@@ -31,21 +35,26 @@ class _LoginScreenState extends State<LoginScreen> {
             : FutureBuilder<LoginResponse>(
                 future: _loginResponse,
                 builder: (context, snapshot) {
-                  if (snapshot.hasData) {
-                    WidgetsBinding.instance.addPostFrameCallback((_) {
-                      Navigator.pushNamedAndRemoveUntil(
-                          context, '/home', (_) => false);
-                    });
-                  } else if (snapshot.hasError) {
-                    WidgetsBinding.instance.addPostFrameCallback((_) {
-                      Scaffold.of(context).showSnackBar(SnackBar(
-                        content: Text("Sorry an error Occured"),
-                        duration: Duration(seconds: 1),
-                      ));
-                    });
+                  if (snapshot.connectionState == ConnectionState.done) {
+                    if (snapshot.hasData) {
 
-                    return buildListView(context);
-                    // return Text("${snapshot.error}");
+                      saveToDb(snapshot.data.tokens);
+                      WidgetsBinding.instance.addPostFrameCallback((_) {
+                        Navigator.pushNamedAndRemoveUntil(
+                            context, '/home', (_) => false);
+                      });
+                    }
+
+                    WidgetsBinding.instance.addPostFrameCallback((_) {
+                        Scaffold.of(context).showSnackBar(SnackBar(
+                          content: Text("Sorry can't Login"),
+                          duration: Duration(seconds: 1),
+                        ));
+                      });
+
+                      return buildListView(context);
+                      // return Text("${snapshot.error}");
+
                   }
 
                   return Center(child: CircularProgressIndicator());
@@ -53,6 +62,11 @@ class _LoginScreenState extends State<LoginScreen> {
               ),
       ),
     );
+  }
+
+  void saveToDb(Tokens tokens) async{
+    var ticketDb =await TicketDataBase.ticketDb.insert(tokens);
+
   }
 
   ListView buildListView(BuildContext context) {
@@ -63,7 +77,8 @@ class _LoginScreenState extends State<LoginScreen> {
           height: 80.0,
         ),
         TextFormField(
-          controller: _usernameController,
+          controller: _emailController,
+          keyboardType: TextInputType.emailAddress,
           decoration: InputDecoration(
               labelText: 'Username',
               border: OutlineInputBorder(),
@@ -123,11 +138,12 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   void login() {
-    String username = _usernameController.text.toString();
+    String username = _emailController.text.toString();
     String password = _passwordController.text.toString();
-    LoginModel login = LoginModel(username: username, password: password);
+    LoginModel login = LoginModel(email: username, password: password);
 
-    _loginResponse = loginUser("https://mikail-sauce.herokuapp.com/login/",
-        body: login.toMap());
+    _loginResponse = loginUser(
+        "https://mikail-sauce.herokuapp.com/api/auth/login/",
+        body: login.toJson());
   }
 }

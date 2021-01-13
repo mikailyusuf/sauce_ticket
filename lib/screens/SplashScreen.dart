@@ -3,8 +3,7 @@ import 'package:sauce_ticket/authScreens/LoginScreen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:splashscreen/splashscreen.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-
-import 'authScreens/TicketScreens.dart';
+import '../models/HomeScreen.dart';
 
 class WelcomeScreen extends StatefulWidget {
   @override
@@ -52,7 +51,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
   _getUserStatus() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     setState(() {
-      _status = (prefs.getBool('registered') ?? false);
+      _status = (prefs.getBool('logged_in') ?? false);
     });
   }
 }

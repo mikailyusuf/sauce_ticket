@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:sauce_ticket/httpmethods/httpMethods.dart';
 import 'package:sauce_ticket/models/RegisterModel.dart';
 import 'package:sauce_ticket/models/RegisterResponse.dart';
-import 'package:sauce_ticket/networkStatus.dart';
+import 'package:sauce_ticket/utils/networkStatus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 
@@ -15,6 +15,7 @@ class _RegisterUserState extends State<RegisterUser> {
   final _formKey = GlobalKey<FormState>();
   final _firstnameController = TextEditingController();
   final _lastnameController = TextEditingController();
+  final _phoneNumberController = TextEditingController();
   final _usernameController = TextEditingController();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
@@ -25,11 +26,11 @@ class _RegisterUserState extends State<RegisterUser> {
 
 
 
-  saveUserData(bool registerd, String email) async {
+  saveUserData(bool logged_in, String email) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     setState(() {
-      prefs.setBool("registered", registerd);
-      prefs.setString("email", email);
+      prefs.setBool("logged_in", logged_in);
+      // prefs.setString("email", email);
     });
   }
 
@@ -48,29 +49,34 @@ class _RegisterUserState extends State<RegisterUser> {
             : FutureBuilder<RegisterResponse>(
                 future: _registerResponse,
                 builder: (context, snapshot) {
+                  if(snapshot.connectionState == ConnectionState.done)
+                    {
 
-                  if (snapshot.hasData) {
-                    WidgetsBinding.instance.addPostFrameCallback((_) {
+                      if (snapshot.hasData) {
+                        WidgetsBinding.instance.addPostFrameCallback((_) {
 
-                      Navigator.pushNamedAndRemoveUntil(context,'/home',(_)=>false);
+                          Navigator.pushNamedAndRemoveUntil(context,'/home',(_)=>false);
 
-                      // Scaffold.of(context).showSnackBar(SnackBar(
-                      //   content: Text("Successfully Registered"),
-                      //   duration: Duration(seconds: 10),
-                      //
-                      // ));
+                          // Scaffold.of(context).showSnackBar(SnackBar(
+                          //   content: Text("Successfully Registered"),
+                          //   duration: Duration(seconds: 10),
+                          //
+                          // ));
 
-                    });
-                  } else if (snapshot.hasError) {
-                    WidgetsBinding.instance.addPostFrameCallback((_) {
-                      Scaffold.of(context).showSnackBar(SnackBar(
-                        content: Text("Sorry an error Occured"),
-                        duration: Duration(seconds: 1),
-                      ));
-                    });
+                        });
+                      } else if (snapshot.hasError) {
+                        WidgetsBinding.instance.addPostFrameCallback((_) {
+                          Scaffold.of(context).showSnackBar(SnackBar(
+                            content: Text("Sorry an error Occured"),
+                            duration: Duration(seconds: 1),
+                          ));
+                        });
 
-                    return buildListView();
-                  }
+                        return buildListView();
+                      }
+                    }
+
+
 
                   return Center(child: CircularProgressIndicator());
                 },
@@ -145,6 +151,22 @@ class _RegisterUserState extends State<RegisterUser> {
             return null;
           },
         ),
+        SizedBox(height: 18.0,),
+        TextFormField(
+          keyboardType: TextInputType.number,
+          controller: _phoneNumberController,
+          decoration: InputDecoration(
+              labelText: 'Phone Number',
+              border: OutlineInputBorder(),
+              hintText: 'Enter a your Phone Number'),
+          validator: (value) {
+            if (value.isEmpty) {
+              return 'Please enter some text';
+            }
+            return null;
+          },
+        ),
+
         SizedBox(
           height: 18.0,
         ),
@@ -198,17 +220,20 @@ class _RegisterUserState extends State<RegisterUser> {
     String first_name = _firstnameController.text.toString();
     String last_name = _lastnameController.text.toString();
     String password = _passwordController.text.toString();
+    String phone_number = _phoneNumberController.text.toString();
+
+
     RegisterModel registerModel = RegisterModel(
         username: username,
         password: password,
         email: email,
         first_name: first_name,
-
+        phone_number: phone_number,
         last_name: last_name);
 
 
           _registerResponse = registerUser(
-                  "https://mikail-sauce.herokuapp.com/register_user/",
+                  "https://mikail-sauce.herokuapp.com/api/auth/register",
                   body: registerModel.toJson());
     saveUserData(true,registerModel.email);
 

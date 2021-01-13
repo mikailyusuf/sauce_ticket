@@ -1,98 +1,55 @@
 import 'dart:convert';
-
 import 'package:flutter/material.dart';
-import 'package:sauce_ticket/models/TicketsModel.dart';
 import 'package:http/http.dart' as http;
+import 'package:sauce_ticket/models/TicketsModel.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
-import '../navScreens.dart';
-
-
-
-class Home extends StatefulWidget {
+class SavedTickets extends StatefulWidget {
   @override
-  _HomeState createState() => _HomeState();
+  _SavedTicketsState createState() => _SavedTicketsState();
 }
 
-class _HomeState extends State<Home> {
-  int _screenNumber = 0;
-
-  List<NavObject> navItems = [
-    NavObject(
-      screen: TicketScreen(),
-      navIcon: Icon(Icons.home),
-      title: Text('Tickets'),
-    ),
-    NavObject(
-      screen: SavedTickets(),
-      navIcon: Icon(Icons.settings),
-      title: Text('Saved Tickets'),
-    ),
-    NavObject(
-      screen: Profile(),
-      navIcon: Icon(Icons.share),
-      title: Text('Profile'),
-    ),
-  ];
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      body: navItems[_screenNumber].screen,
-      bottomNavigationBar: BottomNavigationBar(
-        type: BottomNavigationBarType.fixed,
-        items: navItems
-            .map((navItem) => BottomNavigationBarItem(
-          icon: navItem.navIcon,
-          title: navItem.title,
-
-        ))
-            .toList(),
-        currentIndex: _screenNumber,
-        onTap: (i) => setState(() {
-          _screenNumber = i;
-        }),
-      ),
-    );
-  }
-}
-
-
-
-class TicketScreen extends StatefulWidget {
-  @override
-  _TicketScreenState createState() => _TicketScreenState();
-}
-
-class _TicketScreenState extends State<TicketScreen> {
+class _SavedTicketsState extends State<SavedTickets> {
   List<TicketsModel> _tickets = [];
+
   final GlobalKey<RefreshIndicatorState> _refreshIndicatorKey =
-      new GlobalKey<RefreshIndicatorState>();
+  new GlobalKey<RefreshIndicatorState>();
 
   bool _isLoading = false;
-
+  int user_id;
 
   @override
   initState() {
     super.initState();
-    fetchTickets();
+    getUserId();
+    fetchUserTickets();
+  }
+
+  getUserId() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    setState(() {
+      user_id =  prefs.getInt("userId");
+    });
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Tickets'),
+        title: Text("My Tickets"),
         automaticallyImplyLeading: false,
+
       ),
-      body: _isLoading
+      body:_isLoading
           ? Center(
-              child: CircularProgressIndicator(),
-            )
-          : _buildTicketList(),
+        child: CircularProgressIndicator(),
+      )
+          : _buildTicketList() ,
     );
   }
 
   Future<dynamic> _onRefresh() {
-    return fetchTickets();
+    return fetchUserTickets();
   }
 
   Widget _buildTicketList() {
@@ -106,8 +63,6 @@ class _TicketScreenState extends State<TicketScreen> {
             child: new InkWell(
               onTap: () {
                 Future.delayed(Duration.zero, () {
-                  print("CARD CLICKED");
-                  print(_tickets[index].toString());
                   Navigator.of(context)
                       .pushNamed('/detail', arguments: _tickets[index]);
                 });
@@ -147,11 +102,11 @@ class _TicketScreenState extends State<TicketScreen> {
     );
   }
 
-  Future<dynamic> fetchTickets() {
+  Future<dynamic> fetchUserTickets() {
     _isLoading = true;
 
     return http
-        .get('https://mikail-sauce.herokuapp.com/list_tickets/')
+        .get('https://mikail-sauce.herokuapp.com/get_ticket/${user_id}/')
         .then((http.Response response) {
       final List<TicketsModel> fetchedPosts = [];
 
@@ -185,12 +140,4 @@ class _TicketScreenState extends State<TicketScreen> {
       });
     });
   }
-}
-
-
-class NavObject {
-  Widget screen;
-  Icon navIcon;
-  Text title;
-  NavObject({this.screen, this.navIcon, this.title});
 }
