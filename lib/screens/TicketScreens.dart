@@ -24,17 +24,20 @@ class _TicketScreenState extends State<TicketScreen> {
   @override
   initState() {
     super.initState();
+    getTickets();
     fetchTickets();
   }
 
-  void test() async
+  void getTickets() async
   {
     var ticketDb =await TicketDataBase.ticketDb.getToken();
-    print(ticketDb.access + ticketDb.refresh);
-    var del =await TicketDataBase.ticketDb.delete();
+    print("THIS ARE THE TOKENS  ${ticketDb.access.toString()}  ${ticketDb.refresh.toString()}");
+    // var del =await TicketDataBase.ticketDb.delete();
 
 
   }
+
+
 
 
 

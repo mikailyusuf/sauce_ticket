@@ -37,6 +37,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 builder: (context, snapshot) {
                   if (snapshot.connectionState == ConnectionState.done) {
                     if (snapshot.hasData) {
+                      print("DATA IS  ${snapshot.data.tokens.toString()}");
 
                       saveToDb(snapshot.data.tokens);
                       WidgetsBinding.instance.addPostFrameCallback((_) {
