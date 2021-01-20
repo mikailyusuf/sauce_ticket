@@ -1,15 +1,16 @@
+package models
 
-class RegisterResponse {
+class Data {
     String email;
     String first_name;
     String last_name;
     String phone_number;
     String username;
 
-    RegisterResponse({this.email, this.first_name, this.last_name, this.phone_number, this.username});
+    Data({this.email, this.first_name, this.last_name, this.phone_number, this.username});
 
-    factory RegisterResponse.fromJson(Map<String, dynamic> json) {
-        return RegisterResponse(
+    factory Data.fromJson(Map<String, dynamic> json) {
+        return Data(
             email: json['email'], 
             first_name: json['first_name'], 
             last_name: json['last_name'], 

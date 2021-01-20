@@ -68,7 +68,7 @@ class _TicketScreenState extends State<TicketScreen> {
                   });
                 },
                 child: Icon(
-                  Icons.search,
+                  Icons.logout,
                   size: 26.0,
                 ),
               )

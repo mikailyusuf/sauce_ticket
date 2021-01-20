@@ -45,13 +45,17 @@ class _LoginScreenState extends State<LoginScreen> {
                             context, '/home', (_) => false);
                       });
                     }
-
-                    WidgetsBinding.instance.addPostFrameCallback((_) {
+                    else{
+                      WidgetsBinding.instance.addPostFrameCallback((_) {
                         Scaffold.of(context).showSnackBar(SnackBar(
                           content: Text("Sorry can't Login"),
                           duration: Duration(seconds: 1),
                         ));
                       });
+
+
+                    }
+
 
                       return buildListView(context);
                       // return Text("${snapshot.error}");

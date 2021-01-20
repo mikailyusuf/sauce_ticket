@@ -23,9 +23,6 @@ class _RegisterUserState extends State<RegisterUser> {
 
   bool isInternet = false;
 
-
-
-
   saveUserData(bool logged_in, String email) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     setState(() {
@@ -33,7 +30,6 @@ class _RegisterUserState extends State<RegisterUser> {
       // prefs.setString("email", email);
     });
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -53,9 +49,17 @@ class _RegisterUserState extends State<RegisterUser> {
                     {
 
                       if (snapshot.hasData) {
+
                         WidgetsBinding.instance.addPostFrameCallback((_) {
 
-                          Navigator.pushNamedAndRemoveUntil(context,'/home',(_)=>false);
+                          String email = snapshot.data.email;
+                          Scaffold.of(context).showSnackBar(SnackBar(
+                            content: Text("${email}  Has been registered Pls Check your mail to Verify Your Account"),
+                            duration: Duration(seconds: 1),
+                          ));
+
+                          Navigator.pushNamedAndRemoveUntil(context,'/login',(_)=>false);
+
 
                           // Scaffold.of(context).showSnackBar(SnackBar(
                           //   content: Text("Successfully Registered"),
@@ -235,7 +239,7 @@ class _RegisterUserState extends State<RegisterUser> {
           _registerResponse = registerUser(
                   "https://mikail-sauce.herokuapp.com/api/auth/register",
                   body: registerModel.toJson());
-    saveUserData(true,registerModel.email);
+    // saveUserData(true,registerModel.email);
 
 
 
