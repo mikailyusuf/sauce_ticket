@@ -1,6 +1,10 @@
 import 'dart:convert';
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:sauce_ticket/db/localDb.dart';
+import 'package:sauce_ticket/models/ReservedTickets.dart';
+import 'package:sauce_ticket/models/Ticket.dart';
 import 'package:sauce_ticket/models/TicketsModel.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -10,8 +14,8 @@ class SavedTickets extends StatefulWidget {
 }
 
 class _SavedTicketsState extends State<SavedTickets> {
-  List<TicketsModel> _tickets = [];
-
+  List<ReservedTickets> _reserverdTickets = [];
+  String _token;
   final GlobalKey<RefreshIndicatorState> _refreshIndicatorKey =
   new GlobalKey<RefreshIndicatorState>();
 
@@ -21,6 +25,7 @@ class _SavedTicketsState extends State<SavedTickets> {
   @override
   initState() {
     super.initState();
+    getToken();
     getUserId();
     fetchUserTickets();
   }
@@ -64,29 +69,29 @@ class _SavedTicketsState extends State<SavedTickets> {
               onTap: () {
                 Future.delayed(Duration.zero, () {
                   Navigator.of(context)
-                      .pushNamed('/detail', arguments: _tickets[index]);
+                      .pushNamed('/detail', arguments: _reserverdTickets[index].ticket);
                 });
               },
               child: Column(
                 children: <Widget>[
                   Padding(
-                    child: Text(_tickets[index].start_destination),
+                    child: Text(_reserverdTickets[index].ticket.start_destination),
                     padding: EdgeInsets.all(10.0),
                   ),
                   Padding(
-                    child: Text(_tickets[index].stop_destination),
+                    child: Text(_reserverdTickets[index].ticket.stop_destination),
                     padding: EdgeInsets.all(10.0),
                   ),
                   Padding(
-                    child: Text(_tickets[index].expired.toString()),
+                    child: Text(_reserverdTickets[index].ticket.expired.toString()),
                     padding: EdgeInsets.all(10.0),
                   ),
                   Padding(
-                    child: Text(_tickets[index].date_created),
+                    child: Text(_reserverdTickets[index].ticket.date_created),
                     padding: EdgeInsets.all(10.0),
                   ),
                   Padding(
-                    child: Text(_tickets[index].price),
+                    child: Text(_reserverdTickets[index].ticket.price),
                     padding: EdgeInsets.all(10.0),
                   ),
                   Divider(
@@ -97,20 +102,34 @@ class _SavedTicketsState extends State<SavedTickets> {
             ),
           );
         },
-        itemCount: _tickets.length,
+        itemCount: _reserverdTickets.length,
       ),
     );
   }
 
+  void getToken() async
+  {
+    var ticketDb =await TicketDataBase.ticketDb.getToken();
+    _token = ticketDb.access.toString();
+
+  }
   Future<dynamic> fetchUserTickets() {
     _isLoading = true;
 
     return http
-        .get('https://mikail-sauce.herokuapp.com/get_ticket/${user_id}/')
+        .get('https://mikail-sauce.herokuapp.com/api/tickets/reserve_ticket',headers: {
+      HttpHeaders.authorizationHeader: 'Bearer $_token',
+    })
         .then((http.Response response) {
-      final List<TicketsModel> fetchedPosts = [];
+      final List<ReservedTickets> fetchedPosts = [];
+      // print("Test Data ${response.body.toString()}");
+
+      print("Before Decoding JSON");
 
       final List<dynamic> postsData = json.decode(response.body);
+      print("AFTER Decoding JSON  DATA IS ${postsData.toString()}");
+
+
       if (postsData == null) {
         setState(() {
           _isLoading = false;
@@ -118,23 +137,28 @@ class _SavedTicketsState extends State<SavedTickets> {
       }
 
       for (var i = 0; i < postsData.length; i++) {
-        final TicketsModel tickets = TicketsModel(
-            start_destination: postsData[i]['start_destination'],
-            id: postsData[i]['id'],
-            stop_destination: postsData[i]['stop_destination'],
-            expired: postsData[i]['expired'],
-            date_created: postsData[i]['date_created'],
-            ticket_id: postsData[i]['ticket_id'],
-            used: postsData[i]['used'],
-            price: postsData[i]['price']);
+        print("INSIDE FOR LOOP ");
 
-        fetchedPosts.add(tickets);
+        final ReservedTickets reserverdTickets = ReservedTickets(
+          ticket: Ticket.fromJson(postsData[i]['ticket'])  ,
+            date_purchased:postsData[i]['date_purchased'],
+        order_id: postsData[i]['order_id']
+        );
+
+
+        print("_reserverdTickets Data ${_reserverdTickets.toString()}");
+
+        fetchedPosts.add(reserverdTickets);
       }
       setState(() {
-        _tickets = fetchedPosts;
+        _reserverdTickets = fetchedPosts;
+        // print("_reserverdTickets Data ${_reserverdTickets.toString()}");
+
         _isLoading = false;
       });
     }).catchError((Object error) {
+      print("Errror  ${error.toString()}");
+
       setState(() {
         _isLoading = false;
       });

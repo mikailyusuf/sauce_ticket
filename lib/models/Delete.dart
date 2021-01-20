@@ -1,14 +1,14 @@
+package models
 
-import 'Tokens.dart';
-class LoginResponse {
+class Delete {
     String email;
     Tokens tokens;
     String username;
 
-    LoginResponse({this.email, this.tokens, this.username});
+    Delete({this.email, this.tokens, this.username});
 
-    factory LoginResponse.fromJson(Map<String, dynamic> json) {
-        return LoginResponse(
+    factory Delete.fromJson(Map<String, dynamic> json) {
+        return Delete(
             email: json['email'], 
             tokens: json['tokens'] != null ? Tokens.fromJson(json['tokens']) : null, 
             username: json['username'], 

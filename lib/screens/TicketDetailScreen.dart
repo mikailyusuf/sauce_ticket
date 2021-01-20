@@ -1,5 +1,6 @@
 
 import 'package:flutter/material.dart';
+import 'package:sauce_ticket/models/Ticket.dart';
 import 'package:sauce_ticket/models/TicketsModel.dart';
 
 class TicketDetailScreen extends StatefulWidget {
@@ -8,7 +9,7 @@ class TicketDetailScreen extends StatefulWidget {
   _TicketDetailScreenState createState() => _TicketDetailScreenState();
 
 
-  final TicketsModel _ticketsModel;
+  final Ticket _ticketsModel;
 
   TicketDetailScreen(this._ticketsModel);
 

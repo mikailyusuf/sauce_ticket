@@ -1,4 +1,5 @@
 import 'package:sauce_ticket/models/Tokens.dart';
+import 'package:sauce_ticket/screens/SavedUserTokens.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
 
@@ -6,8 +7,8 @@ class TicketDataBase {
   String path;
   Database db;
   String tableTokens = "Tokens";
-  String columnAccess = "Access";
-  String columnRefresh = "Refresh";
+  String columnAccess = "access";
+  String columnRefresh = "refresh";
 
   TicketDataBase._();
 
@@ -46,14 +47,14 @@ class TicketDataBase {
 
   Future<void> delete() async {
     final db = await database;
-    return await db.rawQuery('DELETE * FROM $tableTokens');
+    return await db.rawQuery('DELETE FROM $tableTokens');
   }
 
-  Future<Tokens> getToken() async {
+  Future<SavedUserTokens> getToken() async {
     final db = await database;
     List<Map> maps = await db.rawQuery('SELECT * FROM $tableTokens');
     if (maps.length > 0) {
-      return Tokens.fromJson(maps.first);
+      return SavedUserTokens.fromJson(maps.first);
     }
     return null;
   }

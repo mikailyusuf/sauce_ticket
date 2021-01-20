@@ -1,6 +1,7 @@
 
 
 import 'package:flutter/material.dart';
+import 'package:sauce_ticket/models/Ticket.dart';
 import 'package:sauce_ticket/screens/SplashScreen.dart';
 import 'package:sauce_ticket/screens/TicketDetailScreen.dart';
 import 'package:sauce_ticket/authScreens/LoginScreen.dart';
@@ -28,7 +29,8 @@ class RouteGenerator {
         return MaterialPageRoute(builder: (_)=>Home());
       case '/detail':
 
-        TicketsModel data = args;
+        Ticket
+        data = args;
 
         return MaterialPageRoute(builder: (_)=>TicketDetailScreen(data));
 

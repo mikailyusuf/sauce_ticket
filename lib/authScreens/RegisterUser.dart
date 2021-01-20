@@ -4,6 +4,7 @@ import 'package:sauce_ticket/models/RegisterModel.dart';
 import 'package:sauce_ticket/models/RegisterResponse.dart';
 import 'package:sauce_ticket/utils/networkStatus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:awesome_dialog/awesome_dialog.dart';
 
 
 class RegisterUser extends StatefulWidget {
@@ -28,6 +29,7 @@ class _RegisterUserState extends State<RegisterUser> {
     setState(() {
       prefs.setBool("logged_in", logged_in);
       // prefs.setString("email", email);
+
     });
   }
 
@@ -53,12 +55,22 @@ class _RegisterUserState extends State<RegisterUser> {
                         WidgetsBinding.instance.addPostFrameCallback((_) {
 
                           String email = snapshot.data.email;
-                          Scaffold.of(context).showSnackBar(SnackBar(
-                            content: Text("${email}  Has been registered Pls Check your mail to Verify Your Account"),
-                            duration: Duration(seconds: 1),
-                          ));
+                          AwesomeDialog(
+                            context: context,
+                            dialogType: DialogType.SUCCES,
+                            animType: AnimType.BOTTOMSLIDE,
+                            title: 'SUCCESS',
+                            desc: 'A verification email has been sent to $email, Pls confirm',
+                            btnCancelOnPress: () {
+                              Navigator.pushNamedAndRemoveUntil(context,'/login',(_)=>false);
 
-                          Navigator.pushNamedAndRemoveUntil(context,'/login',(_)=>false);
+                            },
+                            btnOkOnPress: () {
+                              Navigator.pushNamedAndRemoveUntil(context,'/login',(_)=>false);
+
+                            },
+                          )..show();
+
 
 
                           // Scaffold.of(context).showSnackBar(SnackBar(
@@ -71,7 +83,7 @@ class _RegisterUserState extends State<RegisterUser> {
                       } else if (snapshot.hasError) {
                         WidgetsBinding.instance.addPostFrameCallback((_) {
                           Scaffold.of(context).showSnackBar(SnackBar(
-                            content: Text("Sorry an error Occured"),
+                            content: Text("Sorry an error Occured : ${snapshot.error.toString()}"),
                             duration: Duration(seconds: 1),
                           ));
                         });

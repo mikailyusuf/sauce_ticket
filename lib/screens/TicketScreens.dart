@@ -1,53 +1,57 @@
 import 'dart:convert';
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:sauce_ticket/db/localDb.dart';
+import 'package:sauce_ticket/httpmethods/httpMethods.dart';
+import 'package:sauce_ticket/models/OrderResponse.dart';
+import 'package:sauce_ticket/models/OrderTicket.dart';
 import 'package:sauce_ticket/models/TicketsModel.dart';
 import 'package:http/http.dart' as http;
 import 'package:sauce_ticket/models/Tokens.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:awesome_dialog/awesome_dialog.dart';
+import 'package:intl/intl.dart';
 
 class TicketScreen extends StatefulWidget {
-
   Tokens token;
+
   @override
   _TicketScreenState createState() => _TicketScreenState();
 }
 
 class _TicketScreenState extends State<TicketScreen> {
+  String _token;
   List<TicketsModel> _tickets = [];
   final GlobalKey<RefreshIndicatorState> _refreshIndicatorKey =
       new GlobalKey<RefreshIndicatorState>();
 
   bool _isLoading = false;
 
-
   @override
   initState() {
     super.initState();
-    getTickets();
+    getToken();
     fetchTickets();
   }
 
-  void getTickets() async
-  {
-    var ticketDb =await TicketDataBase.ticketDb.getToken();
-    print("THIS ARE THE TOKENS  ${ticketDb.access.toString()}  ${ticketDb.refresh.toString()}");
-    // var del =await TicketDataBase.ticketDb.delete();
-
-
+  void getToken() async {
+    var ticketDb = await TicketDataBase.ticketDb.getToken();
+    _token = ticketDb.access.toString();
   }
 
+  void deleteToken() async {
+    var del = await TicketDataBase.ticketDb.delete();
+  }
 
-
-
-
-
-  LogOut(bool logged_in,) async {
+  LogOut(
+    bool logged_in,
+  ) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     setState(() {
       prefs.setBool("logged_in", logged_in);
     });
   }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -61,6 +65,7 @@ class _TicketScreenState extends State<TicketScreen> {
                 onTap: () {
                   LogOut(true);
                   setState(() {
+                    deleteToken();
                     WidgetsBinding.instance.addPostFrameCallback((_) {
                       Navigator.pushNamedAndRemoveUntil(
                           context, '/login', (_) => false);
@@ -71,8 +76,7 @@ class _TicketScreenState extends State<TicketScreen> {
                   Icons.logout,
                   size: 26.0,
                 ),
-              )
-          ),
+              )),
         ],
       ),
       body: _isLoading
@@ -98,10 +102,28 @@ class _TicketScreenState extends State<TicketScreen> {
             child: new InkWell(
               onTap: () {
                 Future.delayed(Duration.zero, () {
-                  print("CARD CLICKED");
-                  print(_tickets[index].toString());
-                  Navigator.of(context)
-                      .pushNamed('/detail', arguments: _tickets[index]);
+                  AwesomeDialog(
+                    context: context,
+                    dialogType: DialogType.NO_HEADER,
+                    animType: AnimType.BOTTOMSLIDE,
+                    title:
+                        '${_tickets[index].start_destination} -> ${_tickets[index].stop_destination}',
+                    desc: 'Are You Sure You want to Order This Ticket',
+                    btnCancelOnPress: () {
+                      // Navigator.pushNamedAndRemoveUntil(context,'/login',(_)=>false);
+                    },
+                    btnOkOnPress: () {
+                      setState(() {
+                        orderTicket(_tickets[index].id.toInt());
+
+                      });
+                            // Navigator.pushNamedAndRemoveUntil(context,'/login',(_)=>false);
+                    },
+                  )..show();
+                  // print("CARD CLICKED");
+                  // print(_tickets[index].toString());
+                  // Navigator.of(context)
+                  //     .pushNamed('/detail', arguments: _tickets[index]);
                 });
               },
               child: Column(
@@ -139,16 +161,73 @@ class _TicketScreenState extends State<TicketScreen> {
     );
   }
 
+  Widget date(String date)
+  {
+    // var inputFormat = DateFormat('dd/MM/yyyy HH:mm');
+    // var inputDate = inputFormat.parse(date); // <-- Incoming date
+    //
+    // var outputFormat = DateFormat('MM/dd/yyyy hh:mm a');
+    // var outputDate = outputFormat.format(inputDate); // <-- Desired date
+    // print(outputDate);
+    String formatted = DateFormat("dd-MM-yyyy").format(DateTime.parse(date));
+    return Text(formatted);
+  }
+  
+  Future<dynamic> orderTicket(int id) {
+    _isLoading = true;
+    OrderTicket order = OrderTicket(ticket_id: id);
+    String url =
+        "https://mikail-sauce.herokuapp.com/api/tickets/reserve_ticket";
+
+    return http.post(url, headers: {
+      HttpHeaders.authorizationHeader: 'Bearer $_token',
+    },body:  jsonEncode(<String, int>{
+      'ticket_id': id,
+    })).then((http.Response response) {
+      print("The Response body ${response.body.toString()} ");
+
+      final OrderResponse orderResponse = json.decode(response.body);
+      if (orderResponse == null) {
+        print("POST DATA IS NULL");
+
+        setState(() {
+          _isLoading = false;
+        });
+      }
+
+      print("RESPONSE  $orderResponse");
+
+      setState(() {
+        _isLoading = false;
+
+        // _tickets = fetchedPosts;
+
+      });
+    }).catchError((Object error) {
+      print("AN ERROR OCCURED ${error.toString()}");
+
+      setState(() {
+        _isLoading = false;
+      });
+    });
+
+  }
+
   Future<dynamic> fetchTickets() {
     _isLoading = true;
 
-    return http
-        .get('https://mikail-sauce.herokuapp.com/list_tickets/')
-        .then((http.Response response) {
+    return http.get(
+        'https://mikail-sauce.herokuapp.com/api/tickets/get_tickets',
+        headers: {
+          HttpHeaders.authorizationHeader: 'Bearer $_token',
+        }).then((http.Response response) {
+      // print("The Response body ${response.body.toString()} ");
       final List<TicketsModel> fetchedPosts = [];
 
       final List<dynamic> postsData = json.decode(response.body);
       if (postsData == null) {
+        print("POST DATA IS NULL");
+
         setState(() {
           _isLoading = false;
         });
@@ -169,13 +248,15 @@ class _TicketScreenState extends State<TicketScreen> {
       }
       setState(() {
         _tickets = fetchedPosts;
+        // print("THESE ARE THE DATAS ${_tickets.toString()}");
         _isLoading = false;
       });
     }).catchError((Object error) {
+      // print("AN ERROR OCCURED ${error.toString()}");
+
       setState(() {
         _isLoading = false;
       });
     });
   }
 }
-

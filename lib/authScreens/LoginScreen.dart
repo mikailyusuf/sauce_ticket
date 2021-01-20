@@ -37,7 +37,9 @@ class _LoginScreenState extends State<LoginScreen> {
                 builder: (context, snapshot) {
                   if (snapshot.connectionState == ConnectionState.done) {
                     if (snapshot.hasData) {
-                      print("DATA IS  ${snapshot.data.tokens.toString()}");
+                      print("THE USER ACCESS TOKE  IS  ${snapshot.data.tokens.access.toString()}");
+                      print("THE USER REFRESH TOKEN  IS  ${snapshot.data.tokens.refresh.toString()}");
+                      print("THE USER DATA IS  ${snapshot.data.email}  ${snapshot.data.username}");
 
                       saveToDb(snapshot.data.tokens);
                       WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -48,7 +50,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     else{
                       WidgetsBinding.instance.addPostFrameCallback((_) {
                         Scaffold.of(context).showSnackBar(SnackBar(
-                          content: Text("Sorry can't Login"),
+                          content: Text("Sorry can't Login : ${snapshot.error.toString()}"),
                           duration: Duration(seconds: 1),
                         ));
                       });
