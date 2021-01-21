@@ -13,14 +13,14 @@ class TicketsModel {
 
     factory TicketsModel.fromJson(Map<String, dynamic> json) {
         return TicketsModel(
-            date_created: json['date_created'], 
-            expired: json['expired'], 
-            id: json['id'], 
-            price: json['price'], 
-            start_destination: json['start_destination'], 
-            stop_destination: json['stop_destination'], 
-            ticket_id: json['ticket_id'], 
-            used: json['used'], 
+            date_created: json['date_created'] as String,
+            expired: json['expired'] as bool,
+            id: json['id'] as int,
+            price: json['price'] as String,
+            start_destination: json['start_destination'] as String,
+            stop_destination: json['stop_destination'] as String,
+            ticket_id: json['ticket_id'] as String,
+            used: json['used'] as bool,
         );
     }
 

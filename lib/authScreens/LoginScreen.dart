@@ -6,6 +6,7 @@ import 'package:sauce_ticket/models/LoginModel.dart';
 import 'package:sauce_ticket/models/LoginResponse.dart';
 import 'package:sauce_ticket/models/Tokens.dart';
 import 'package:sauce_ticket/utils/networkStatus.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class LoginScreen extends StatefulWidget {
   @override
@@ -19,6 +20,12 @@ class _LoginScreenState extends State<LoginScreen> {
   Future<LoginResponse> _loginResponse;
 
   bool isInternet = false;
+
+  void logInUser(bool logged_in) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+      prefs.setBool("logged_in", logged_in);
+  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -37,11 +44,8 @@ class _LoginScreenState extends State<LoginScreen> {
                 builder: (context, snapshot) {
                   if (snapshot.connectionState == ConnectionState.done) {
                     if (snapshot.hasData) {
-                      print("THE USER ACCESS TOKE  IS  ${snapshot.data.tokens.access.toString()}");
-                      print("THE USER REFRESH TOKEN  IS  ${snapshot.data.tokens.refresh.toString()}");
-                      print("THE USER DATA IS  ${snapshot.data.email}  ${snapshot.data.username}");
-
                       saveToDb(snapshot.data.tokens);
+                      logInUser(true);
                       WidgetsBinding.instance.addPostFrameCallback((_) {
                         Navigator.pushNamedAndRemoveUntil(
                             context, '/home', (_) => false);
@@ -54,12 +58,8 @@ class _LoginScreenState extends State<LoginScreen> {
                           duration: Duration(seconds: 1),
                         ));
                       });
-
-
                     }
-
-
-                      return buildListView(context);
+                    return buildListView(context);
                       // return Text("${snapshot.error}");
 
                   }
